@@ -56,7 +56,7 @@ CREATE TABLE Artists (
 
  INSERT INTO Artworks (ArtworkID, Title, ArtistID, CategoryID, Year, Description, ImageURL, Price, Status) VALUES
 (1, 'The Weeping Woman', 1, 1, 1937, 'A famous painting by Pablo Picasso.', 'weeping_woman.jpg', 750000, 'Available'),
-(2, 'The Starry Night Over the Rhône', 2, 1, 1888, 'Another version of Starry Night by van Gogh.', 'starry_night_rhone.jpg', 850000, 'Available'),
+(2, 'The Starry Night Over the RhÃ´ne', 2, 1, 1888, 'Another version of Starry Night by van Gogh.', 'starry_night_rhone.jpg', 850000, 'Available'),
 (3, 'The Last Supper', 3, 2, 1495, 'A large mural by Leonardo da Vinci.', 'last_supper.jpg', 1800000, 'Sold'),
 (5, 'Brillo Boxes', 4, 2, 1964, 'Sculptural artwork by Andy Warhol.', 'brillo_boxes.jpg', 500000, 'Available'), 
 (6, 'Self-Portrait', 4, 3, 1986, 'A photographic self-portrait by Andy Warhol.', 'self_portrait_warhol.jpg', 300000, 'Available');
@@ -65,15 +65,23 @@ CREATE TABLE Artists (
 
  INSERT INTO Exhibitions (ExhibitionID, Title, StartDate, EndDate, Description) VALUES
  (1, 'Modern Art Masterpieces', '2023-01-01', '2023-03-01', 'A collection of modern art masterpieces.'),
- (2, 'Renaissance Art', '2023-04-01', '2023-06-01', 'A showcase of Renaissance art treasures.'); INSERT INTO ExhibitionArtworks (ExhibitionID, ArtworkID) VALUES
+ (2, 'Renaissance Art', '2023-04-01', '2023-06-01', 'A showcase of Renaissance art treasures.');
+
+ INSERT INTO ExhibitionArtworks (ExhibitionID, ArtworkID) VALUES
  (1, 1),
  (1, 2),
  (1, 3),
- (2, 2);--1. Retrieve the names of all artists along with the number 
+ (2, 2);
+
+
+--1. Retrieve the names of all artists along with the number 
 -- of artworks they have in the gallery, and
--- list them in descending order of the number of artworks.select a.Name as ArtistName, count(aw.ArtworkID) AS NumberOfArtworks
+-- list them in descending order of the number of artworks.
+select a.Name as ArtistName, count(aw.ArtworkID) AS NumberOfArtworks
 FROM Artists a left join Artworks aw on a.ArtistID = aw.ArtistID
-group by a.Name order by NumberOfArtworks DESC--2.List the titles of artworks created by artists from 
+group by a.Name order by NumberOfArtworks DESC
+
+--2.List the titles of artworks created by artists from 
 --'Spanish' and 'Dutch' nationalities, and order
 --them by the year in ascending order.
 
@@ -91,18 +99,28 @@ where c.Name = 'Painting'
 group by ar.Name
 
 --4. List the names of artworks from the 'Modern Art Masterpieces' exhibition, 
---along with their artists and categories.select  a.Title AS ArtworkTitle, ar.Name AS ArtistName, c.Name AS CategoryName
+--along with their artists and categories.
+
+select  a.Title AS ArtworkTitle, ar.Name AS ArtistName, c.Name AS CategoryName
 from  ExhibitionArtworks ea
 join Artworks a on ea.ArtworkID = a.ArtworkID
 join Artists ar on a.ArtistID = ar.ArtistID
 join Categories c on a.CategoryID = c.CategoryID
 join Exhibitions e on ea.ExhibitionID = e.ExhibitionID
-where e.Title = 'Modern Art Masterpieces'--5. Find the artists who have more than two artworks in the gallery.select ar.Name ,count(a.ArtworkID) AS ArtworkCount
+where e.Title = 'Modern Art Masterpieces'
+
+--5. Find the artists who have more than two artworks in the gallery.
+
+select ar.Name ,count(a.ArtworkID) AS ArtworkCount
 from Artworks a
 join Artists ar ON a.ArtistID = ar.ArtistID
 group by ar.Name
-having count(a.ArtworkID) > 2--6.Find the titles of artworks that were exhibited in both 'Modern Art Masterpieces' and
---'Renaissance Art' exhibitionsselect aw.title as Title
+having count(a.ArtworkID) > 2
+
+
+--6.Find the titles of artworks that were exhibited in both 'Modern Art Masterpieces' and
+--'Renaissance Art' exhibitions
+select aw.title as Title
 from artworks aw
 join exhibitionartworks ea on aw.artworkid = ea.artworkid
 join exhibitions e on ea.exhibitionid = e.exhibitionid
@@ -139,7 +157,8 @@ where ar.Name IN ('Vincent van Gogh', 'Leonardo da Vinci')
 group by  e.Title
 having count(distinct ar.ArtistID) = 2
 
---11. Find all the artworks that have not been included in any exhibition.select a.Title 
+--11. Find all the artworks that have not been included in any exhibition.
+select a.Title 
 from Artworks a
 left join ExhibitionArtworks e1 ON a.ArtworkID = e1.ArtworkID
 where e1.ExhibitionID IS NULL
@@ -153,7 +172,11 @@ join Artists ar on a.ArtistID = ar.ArtistID
 join Categories c on a.CategoryID = c.CategoryID
 group by ar.ArtistID, ar.Name
 having count(distinct a.CategoryID) = (SELECT COUNT(*) FROM Categories)
---13 List the total number of artworks in each category--same as 7th questions
+
+
+
+--13 List the total number of artworks in each category
+--same as 7th questions
 select c.Name as CategoryName, count(aw.ArtworkID) as  Artworkcnt
 from Categories c
 join Artworks aw on c.CategoryID = aw.CategoryID
@@ -174,8 +197,24 @@ group by c.Name
 having count(a.ArtworkID) > 1;
 
 
---16. Find the artworks that were exhibited in the --'Modern Art Masterpieces' exhibitionselect a.ArtworkID from Artworks ajoin ExhibitionArtworks ea on a.ArtworkID = ea.ArtworkIDjoin Exhibitions e on e.ExhibitionID = ea.ExhibitionIDwhere e.Title = 'Modern Art Masterpieces'--17.Find the categories where the average year of artworks is greater 
---than the average year of all artworks.select c.CategoryID, c.Name from Categories cjoin Artworks a on a.CategoryID = c.CategoryID group by C.CategoryID,c.Namehaving avg(a.year)>(select avg(year) from Artworks)--18.List the artworks that were not exhibited in any exhibition--same as question 11
+--16. Find the artworks that were exhibited in the 
+--'Modern Art Masterpieces' exhibition
+select a.ArtworkID from Artworks a
+join ExhibitionArtworks ea on a.ArtworkID = ea.ArtworkID
+join Exhibitions e on e.ExhibitionID = ea.ExhibitionID
+where e.Title = 'Modern Art Masterpieces'
+
+--17.Find the categories where the average year of artworks is greater 
+--than the average year of all artworks.
+select c.CategoryID, c.Name from Categories c
+join Artworks a on a.CategoryID = c.CategoryID 
+group by C.CategoryID,c.Name
+having avg(a.year)
+>(select avg(year) from Artworks)
+
+
+--18.List the artworks that were not exhibited in any exhibition
+--same as question 11
 select a.Title 
 from Artworks a
 left join ExhibitionArtworks e1 ON a.ArtworkID = e1.ArtworkID
